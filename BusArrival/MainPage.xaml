@@ -1,0 +1,77 @@
+﻿<Page
+    x:Class="BusArrival.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BusArrival"
+    xmlns:valueConverters="using:BusArrival.ValueConverters"
+    xmlns:viewModel="using:BusArrival.ViewModel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.DataContext>
+        <viewModel:BusArrivalViewModel/>
+    </Page.DataContext>
+    
+    <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+        
+        <Grid.Resources>
+            <valueConverters:UnixEpochTimeValueConverter x:Key="UnixEpochTimeValueConverter" />
+            <valueConverters:DistanceToMyLocationValueConverter x:Key="DistanceToMyLocationValueConverter" />
+        </Grid.Resources>
+        
+        <StackPanel>
+            <TextBlock x:Name="textResult"/>
+            <Button Content="Go" Click="Button_Click_1"/>
+            <Button Content="Go2" Click="Button_Click_2"/>
+            
+            <ListView x:Name="listBusStops" 
+                      ItemsSource="{Binding StopsNearby}"
+                      SelectionChanged="listBusStops_SelectionChanged_1"
+                      SelectedItem="{Binding SelectedBusStop, Mode=TwoWay}"
+                      HorizontalAlignment="Left">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}"/>
+                            <TextBlock Margin="5,0,0,0">(<Run Text="{Binding Indicator}"/>)</TextBlock>
+                            <TextBlock Margin="5,0,0,0"> towards <Run Text="{Binding Towards}"/></TextBlock>
+                            <TextBlock Margin="5,0,0,0" Text="{Binding LineInfo}"/>
+                            <TextBlock Margin="5,0,0,0"><Run Text="{Binding Location, Converter={StaticResource DistanceToMyLocationValueConverter}, ConverterParameter=Meters}"/>m</TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            
+            <Border BorderThickness="1">
+                <ItemsControl x:Name="busArrival"
+                              ItemsSource="{Binding ElementName=listBusStops, Path=SelectedItem.Predictions}"
+                              FontSize="20">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding LineName}"/>
+                                <TextBlock Margin="5,0,0,0" Text="{Binding DestinationText}"/>
+                                <TextBlock Margin="5,0,0,0"><Run Text="{Binding EstimatedTime, Converter={StaticResource UnixEpochTimeValueConverter}}"/>min</TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+            
+            <!--<ItemsControl x:Name="listBusStops2" FontSize="20">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}"/>
+                            <TextBlock Margin="5,0,0,0">(<Run Text="{Binding Indicator}"/>)</TextBlock>
+                            <TextBlock Margin="5,0,0,0">towards<Run Text="{Binding Towards}"/></TextBlock>
+                            <TextBlock Margin="5,0,0,0" Text="{Binding LineInfo}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>-->
+                
+        </StackPanel>
+    </Grid>
+</Page>
